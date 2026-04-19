@@ -1,19 +1,30 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import AdminSidebar from '@/components/AdminSidebar'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createServerComponentClient({ cookies })
-  const { data: { session } } = await supabase.auth.getSession()
+  const cookieStore = cookies()
 
-  if (!session) redirect('/login?redirectTo=/admin/dashboard')
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll() },
+        setAll() {},
+      },
+    }
+  )
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login?redirectTo=/admin/dashboard')
 
   // Check role in users table
   const { data: profile } = await supabase
     .from('users')
     .select('role, blocked')
-    .eq('id', session.user.id)
+    .eq('id', user.id)
     .single()
 
   if (!profile || profile.blocked || !['admin', 'superadmin'].includes(profile.role || '')) {
