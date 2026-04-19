@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SocialAI Manager</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { width: 360px; min-height: 400px; background: #030712; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; }
+
+    .header { display: flex; align-items: center; gap: 10px; padding: 16px; border-bottom: 1px solid #1e293b; }
+    .logo { width: 32px; height: 32px; background: linear-gradient(135deg, #1570eb, #7c3aed); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .header-title { font-weight: 700; font-size: 15px; }
+    .header-subtitle { font-size: 11px; color: #64748b; }
+
+    .body { padding: 16px; }
+    .section-title { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+
+    .input-group { margin-bottom: 12px; }
+    label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
+    textarea, select, input { width: 100%; padding: 9px 12px; background: #0f172a; border: 1px solid #1e293b; border-radius: 10px; color: #e2e8f0; font-size: 13px; outline: none; transition: border-color 0.2s; resize: none; }
+    textarea:focus, select:focus, input:focus { border-color: #1570eb; }
+
+    .btn { width: 100%; padding: 10px; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, #1570eb, #7c3aed); color: white; }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-secondary { background: #1e293b; color: #94a3b8; margin-top: 8px; }
+    .btn-secondary:hover { background: #243044; color: #e2e8f0; }
+
+    .result { margin-top: 12px; padding: 12px; background: #0f172a; border: 1px solid #1e293b; border-radius: 10px; }
+    .result-label { font-size: 10px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 6px; }
+    .result-text { font-size: 12px; color: #cbd5e1; line-height: 1.6; }
+    .copy-btn { margin-top: 8px; padding: 6px 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #94a3b8; font-size: 11px; cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { background: #243044; color: #e2e8f0; }
+
+    .tabs { display: flex; border-bottom: 1px solid #1e293b; }
+    .tab { flex: 1; padding: 10px; text-align: center; font-size: 12px; color: #64748b; cursor: pointer; transition: all 0.2s; border-bottom: 2px solid transparent; }
+    .tab.active { color: #1570eb; border-bottom-color: #1570eb; }
+
+    .page { display: none; padding: 16px; }
+    .page.active { display: block; }
+
+    .platform-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+    .platform-btn { padding: 8px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; text-align: center; cursor: pointer; font-size: 11px; color: #94a3b8; transition: all 0.2s; }
+    .platform-btn.selected { border-color: #1570eb; background: #1570eb18; color: #93c5fd; }
+
+    .loading { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 20px; color: #64748b; font-size: 13px; }
+    .spinner { width: 16px; height: 16px; border: 2px solid #1e293b; border-top-color: #1570eb; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .idea-list { space-y: 8px; }
+    .idea-item { padding: 10px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
+    .idea-item:hover { border-color: #334155; background: #162032; }
+    .idea-text { font-size: 12px; color: #cbd5e1; }
+    .idea-meta { font-size: 10px; color: #64748b; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">✨</div>
+    <div>
+      <div class="header-title">SocialAI Manager</div>
+      <div class="header-subtitle">AI Content Generator</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="generate">Generate</div>
+    <div class="tab" data-tab="capture">Capture</div>
+    <div class="tab" data-tab="ideas">Ideas</div>
+  </div>
+
+  <!-- Generate Tab -->
+  <div class="page active" id="tab-generate">
+    <div class="platform-grid">
+      <div class="platform-btn selected" data-platform="instagram">📸 Instagram</div>
+      <div class="platform-btn" data-platform="twitter">🐦 Twitter</div>
+      <div class="platform-btn" data-platform="linkedin">💼 LinkedIn</div>
+      <div class="platform-btn" data-platform="youtube">▶️ YouTube</div>
+      <div class="platform-btn" data-platform="facebook">👥 Facebook</div>
+      <div class="platform-btn" data-platform="pinterest">📌 Pinterest</div>
+    </div>
+
+    <div class="input-group">
+      <label>Topic</label>
+      <textarea id="topic" rows="2" placeholder="What's this content about?"></textarea>
+    </div>
+
+    <div class="input-group">
+      <label>Tone</label>
+      <select id="tone">
+        <option>Inspirational</option>
+        <option>Educational</option>
+        <option>Entertaining</option>
+        <option>Professional</option>
+        <option>Casual</option>
+        <option>Bold & Direct</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary" id="generateBtn">✨ Generate Content</button>
+
+    <div id="result" style="display:none">
+      <div class="result">
+        <div class="result-label">🔥 Hook</div>
+        <div class="result-text" id="resultHook"></div>
+      </div>
+      <div class="result" style="margin-top:8px">
+        <div class="result-label">📝 Caption</div>
+        <div class="result-text" id="resultCaption"></div>
+        <button class="copy-btn" id="copyBtn">📋 Copy All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Capture Tab -->
+  <div class="page" id="tab-capture">
+    <div class="input-group">
+      <label>Save Page as Content Idea</label>
+      <div id="currentPage" style="padding:10px;background:#0f172a;border:1px solid #1e293b;border-radius:10px;font-size:12px;color:#94a3b8">
+        Loading current page…
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Your Note</label>
+      <textarea id="captureNote" rows="3" placeholder="Add context or content angle…"></textarea>
+    </div>
+    <button class="btn btn-primary" id="captureBtn">💾 Save Idea</button>
+    <div id="captureSuccess" style="display:none;margin-top:10px;padding:10px;background:#064e3b;border-radius:10px;color:#6ee7b7;font-size:12px;text-align:center">
+      ✅ Saved to your Content Library!
+    </div>
+  </div>
+
+  <!-- Ideas Tab -->
+  <div class="page" id="tab-ideas">
+    <div class="section-title">Saved Ideas</div>
+    <div id="ideasList">
+      <div style="color:#64748b;font-size:12px;text-align:center;padding:20px">
+        No saved ideas yet.<br>Use the Capture tab to save ideas!
+      </div>
+    </div>
+    <button class="btn btn-secondary" onclick="window.open('http://localhost:3000/content-studio')">
+      🚀 Open Full Dashboard
+    </button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
