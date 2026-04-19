@@ -1,10 +1,21 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from app.models.schemas import PostCreate, PostUpdate, PostResponse
 from app.api.deps import get_current_user, get_supabase
-from app.workers.tasks import publish_post_task
 from supabase import Client
 from datetime import datetime, timezone
 import uuid
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Import Celery task only if available (workers may not run on free plan)
+try:
+    from workers.tasks import publish_post_task
+    CELERY_AVAILABLE = True
+except Exception:
+    publish_post_task = None
+    CELERY_AVAILABLE = False
+    logger.warning("Celery workers not available — posts will be saved but not auto-published")
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 schedule_router = APIRouter(prefix="/schedule-post", tags=["posts"])
@@ -62,12 +73,16 @@ async def schedule_post(
     if not result.data:
         raise HTTPException(status_code=500, detail="Failed to save post")
 
-    # Enqueue Celery task with ETA
-    eta_seconds = max(0, (request.scheduled_at.replace(tzinfo=timezone.utc) - now).total_seconds())
-    publish_post_task.apply_async(
-        args=[post_id, current_user["id"]],
-        countdown=int(eta_seconds),
-    )
+    # Enqueue Celery task with ETA (only if workers are available)
+    if CELERY_AVAILABLE and publish_post_task:
+        try:
+            eta_seconds = max(0, (request.scheduled_at.replace(tzinfo=timezone.utc) - now).total_seconds())
+            publish_post_task.apply_async(
+                args=[post_id, current_user["id"]],
+                countdown=int(eta_seconds),
+            )
+        except Exception as e:
+            logger.warning(f"Could not enqueue publish task: {e}")
 
     return result.data[0]
 
