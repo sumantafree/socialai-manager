@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
 from functools import lru_cache
-from typing import Literal
+from typing import Literal, Union
+from pydantic import field_validator
 
 
 class Settings(BaseSettings):
@@ -11,7 +12,18 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     # CORS
-    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000"]
+    BACKEND_CORS_ORIGINS: Union[list[str], str] = ["http://localhost:3000"]
+
+    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
+    @classmethod
+    def parse_cors(cls, v):
+        if isinstance(v, str):
+            # Handle "*" or comma-separated values like "https://a.com,https://b.com"
+            v = v.strip()
+            if v == "*":
+                return ["*"]
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return v
 
     # Supabase
     SUPABASE_URL: str = ""
