@@ -39,7 +39,7 @@ cachetools==5.5.0
 tweepy==4.14.0
 google-api-python-client==2.147.0
 google-auth-oauthlib==1.2.1
-linkedin-api==2.1.5
+linkedin-api==2.3.1
 
 # WhatsApp
 twilio==9.3.7
