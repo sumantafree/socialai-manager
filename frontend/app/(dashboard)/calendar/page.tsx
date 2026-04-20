@@ -97,7 +97,7 @@ export default function CalendarPage() {
   };
 
   const upcoming = posts
-    .filter((p) => p.start > new Date() && p.status !== "published")
+    .filter((p) => p.start != null && p.start > new Date() && p.status !== "published")
     .sort((a, b) => (a.start as Date).getTime() - (b.start as Date).getTime())
     .slice(0, 5);
 
