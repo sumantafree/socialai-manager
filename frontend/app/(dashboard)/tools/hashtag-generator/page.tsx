@@ -222,7 +222,7 @@ export default function HashtagGeneratorPage() {
                   <Button variant="ghost" size="sm" onClick={selectAll} className="text-xs h-7">
                     Select All
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())} className="text-xs h-7">
+                  <Button variant="ghost" size="sm" onClick={() => setSelected([])} className="text-xs h-7">
                     Clear
                   </Button>
                   <Button variant="ghost" size="sm" onClick={handleGenerate} className="text-xs h-7">
