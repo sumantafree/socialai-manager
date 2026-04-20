@@ -198,7 +198,7 @@ export default function HashtagGeneratorPage() {
                         onClick={() => toggleTag(tag)}
                         className={cn(
                           "px-2.5 py-1 rounded-full text-xs font-medium border transition-all",
-                          selected.has(tag)
+                          selected.includes(tag)
                             ? "bg-brand-500/20 border-brand-500/50 text-brand-300"
                             : "bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600 hover:text-slate-200"
                         )}
@@ -216,7 +216,7 @@ export default function HashtagGeneratorPage() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold text-sm">Selected Hashtags</h3>
-                  <Badge variant="secondary">{selected.size}</Badge>
+                  <Badge variant="secondary">{selected.length}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="sm" onClick={selectAll} className="text-xs h-7">
@@ -228,7 +228,7 @@ export default function HashtagGeneratorPage() {
                   <Button variant="ghost" size="sm" onClick={handleGenerate} className="text-xs h-7">
                     <RefreshCw className="w-3 h-3" />
                   </Button>
-                  <Button size="sm" onClick={copySelected} disabled={selected.size === 0} className="h-7 text-xs">
+                  <Button size="sm" onClick={copySelected} disabled={selected.length === 0} className="h-7 text-xs">
                     {copied ? <><Check className="w-3 h-3" /> Copied!</> : <><Copy className="w-3 h-3" /> Copy All</>}
                   </Button>
                 </div>
@@ -244,7 +244,7 @@ export default function HashtagGeneratorPage() {
                     </button>
                   </span>
                 ))}
-                {selected.size === 0 && (
+                {selected.length === 0 && (
                   <span className="text-slate-500 text-sm self-center">Click hashtags above to select them</span>
                 )}
               </div>
