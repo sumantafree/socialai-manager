@@ -7,7 +7,19 @@ import {
   ArrowRight, Sparkles, Zap
 } from "lucide-react";
 
-const TOOLS = [
+type Tool = {
+  href: string;
+  icon: any;
+  title: string;
+  description: string;
+  badge: string;
+  color: string;
+  border: string;
+  iconColor: string;
+  disabled?: boolean;
+};
+
+const TOOLS: Tool[] = [
   {
     href: "/tools/blog-converter",
     icon: FileText,
