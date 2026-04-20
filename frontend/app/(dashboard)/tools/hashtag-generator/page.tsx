@@ -31,7 +31,7 @@ export default function HashtagGeneratorPage() {
   const [platform, setPlatform] = useState("instagram");
   const [loading, setLoading] = useState(false);
   const [groups, setGroups] = useState<HashtagGroup[] | null>(null);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selected, setSelected] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
   const [customTag, setCustomTag] = useState("");
 
@@ -39,7 +39,7 @@ export default function HashtagGeneratorPage() {
     if (!topic.trim()) return;
     setLoading(true);
     setGroups(null);
-    setSelected(new Set());
+    setSelected([]);
 
     await new Promise((r) => setTimeout(r, 900));
 
@@ -93,40 +93,38 @@ export default function HashtagGeneratorPage() {
     ]);
 
     // Auto-select best mix
-    setSelected(new Set([
+    setSelected([
       `#${n || t}`, `#${t}tips`, "#motivation", "#entrepreneur",
       `#${t}strategy`, `#${t}growth`, `#${n}life`,
       `#${t}for${n || "beginners"}`, "#trending", `#${t}2025`,
-    ]));
+    ]);
 
     setLoading(false);
   };
 
   const toggleTag = (tag: string) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      next.has(tag) ? next.delete(tag) : next.add(tag);
-      return next;
-    });
+    setSelected((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
   };
 
   const addCustom = () => {
     const tag = customTag.startsWith("#") ? customTag : `#${customTag}`;
     if (tag.length > 1) {
-      setSelected((prev) => new Set([...prev, tag]));
+      setSelected((prev) => prev.includes(tag) ? prev : [...prev, tag]);
       setCustomTag("");
     }
   };
 
   const copySelected = () => {
-    navigator.clipboard.writeText([...selected].join(" "));
+    navigator.clipboard.writeText(selected.join(" "));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const selectAll = () => {
     if (!groups) return;
-    setSelected(new Set(groups.flatMap((g) => g.tags)));
+    setSelected(groups.flatMap((g) => g.tags));
   };
 
   return (
